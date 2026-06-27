@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
 import wandb
+import os
+import wandb
+
+wandb.login(key=os.environ["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"])
 
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
