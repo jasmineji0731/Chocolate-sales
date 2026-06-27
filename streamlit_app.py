@@ -680,7 +680,7 @@ elif page == "🧠 Explainable AI":
     have the greatest influence on predicting chocolate boxes shipped.
     """)
 
-    X = df[
+    X = sample_df[
         [
             "Discount_Pct",
             "Price_per_Box",
@@ -688,7 +688,7 @@ elif page == "🧠 Explainable AI":
         ]
     ]
 
-    y = df["Boxes_Shipped"]
+    y = sample_df["Boxes_Shipped"]
 
     X_train, X_test, y_train, y_test = train_test_split(
         X,
@@ -766,7 +766,7 @@ elif page == "⚙️ Hyperparameter Tuning":
     the best-performing Random Forest model.
     """)
 
-    X = df[
+    X = sample_df[
         [
             "Discount_Pct",
             "Price_per_Box",
@@ -774,7 +774,7 @@ elif page == "⚙️ Hyperparameter Tuning":
         ]
     ]
 
-    y = df["Boxes_Shipped"]
+    y = sample_df["Boxes_Shipped"]
 
     X_train, X_test, y_train, y_test = train_test_split(
         X,
