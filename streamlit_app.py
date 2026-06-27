@@ -662,91 +662,30 @@ support production planning, and improve marketing decisions.
 A good prediction model should generate predictions close to the actual shipment values.
 The closer the points are to the diagonal trend, the better the model performs.
 """)
-    # ============================================
-# Page 4: Explainable AI
-# ============================================
 
-elif page == "🧠 Explainable AI":
 
-    st.title("🧠 Explainable AI")
+
+
+
+
+    
+    elif page == "🧠 Explainable AI":
+
+    st.markdown(
+        "<h1 style='font-size:46px;'>🧠 Explainable AI (SHAP)</h1>",
+        unsafe_allow_html=True
+    )
 
     st.write("""
-This page explains which variables are most important for predicting
-the number of chocolate boxes shipped.
+This page explains how the Random Forest model predicts the number of
+Chocolate Boxes Shipped using SHAP (SHapley Additive exPlanations).
 """)
 
-    # Small sample for faster processing
-    sample_df = df.sample(n=3000, random_state=42)
+    # ---------------------------------------
+    # Use a sample to improve performance
+    # ---------------------------------------
 
-    X = sample_df[
-        [
-            "Discount_Pct",
-            "Price_per_Box",
-            "Marketing_Spend"
-        ]
-    ]
-
-    y = sample_df["Boxes_Shipped"]
-
-    model = RandomForestRegressor(
-        n_estimators=50,
-        random_state=42
-    )
-
-    model.fit(X, y)
-
-    importance = pd.DataFrame({
-
-        "Feature":X.columns,
-
-        "Importance":model.feature_importances_
-
-    })
-
-    importance = importance.sort_values(
-        "Importance",
-        ascending=False
-    )
-
-    fig, ax = plt.subplots(figsize=(8,4))
-
-    sns.barplot(
-        data=importance,
-        x="Importance",
-        y="Feature",
-        palette="YlOrBr",
-        ax=ax
-    )
-
-    ax.set_title("Feature Importance")
-
-    st.pyplot(fig)
-
-    st.success("""
-Business Interpretation
-
-• Features with larger importance contribute more to the prediction.
-
-• Price per Box and Marketing Spend have the greatest influence.
-
-• Discount Percentage also contributes to shipment prediction.
-
-This explains why the machine learning model makes its predictions.
-""")
-    # ============================================
-# Page 5: Hyperparameter Tuning
-# ============================================
-
-elif page == "⚙️ Hyperparameter Tuning":
-
-    st.title("⚙️ Hyperparameter Tuning")
-
-    st.write("""
-This page compares different Random Forest settings
-to select the best-performing model.
-""")
-
-    sample_df = df.sample(n=3000, random_state=42)
+    sample_df = df.sample(n=2000, random_state=42)
 
     X = sample_df[
         [
@@ -765,50 +704,90 @@ to select the best-performing model.
         random_state=42
     )
 
-    results = []
+    # ---------------------------------------
+    # Cache the trained model
+    # ---------------------------------------
 
-    for trees in [50,100]:
+    @st.cache_resource
+    def train_model():
 
         model = RandomForestRegressor(
-            n_estimators=trees,
+            n_estimators=50,
             random_state=42
         )
 
-        model.fit(X_train,y_train)
+        model.fit(X_train, y_train)
 
-        pred = model.predict(X_test)
+        return model
 
-        results.append({
+    model = train_model()
 
-            "Trees":trees,
+    # ---------------------------------------
+    # SHAP
+    # ---------------------------------------
 
-            "R²":round(r2_score(y_test,pred),3),
+    with st.spinner("Generating SHAP explanations..."):
 
-            "RMSE":round(
-                np.sqrt(mean_squared_error(y_test,pred)),2
-            )
+        explainer = shap.TreeExplainer(model)
 
-        })
+        shap_values = explainer.shap_values(X_test)
 
-    result_df = pd.DataFrame(results)
+    st.divider()
 
-    st.subheader("Hyperparameter Results")
+    st.subheader("Feature Importance")
 
-    st.dataframe(result_df,use_container_width=True)
+    fig = plt.figure(figsize=(8,5))
 
-    best = result_df.loc[result_df["R²"].idxmax()]
+    shap.summary_plot(
+        shap_values,
+        X_test,
+        plot_type="bar",
+        show=False
+    )
 
-    st.success(f"""
-Best Model
+    st.pyplot(fig)
 
-Number of Trees: {int(best['Trees'])}
+    plt.close()
 
-Best R² Score: {best['R²']}
+    st.divider()
+
+    st.subheader("SHAP Summary Plot")
+
+    fig = plt.figure(figsize=(8,5))
+
+    shap.summary_plot(
+        shap_values,
+        X_test,
+        show=False
+    )
+
+    st.pyplot(fig)
+
+    plt.close()
+
+    st.divider()
+
+    st.subheader("Business Interpretation")
+
+    st.success("""
+
+SHAP explains how each variable contributes to the prediction.
+
+• Price per Box has a strong influence on shipment prediction.
+
+• Marketing Spend generally increases predicted shipment volume.
+
+• Discount Percentage also contributes to prediction performance.
+
+• Positive SHAP values increase predicted Boxes Shipped.
+
+• Negative SHAP values decrease predicted Boxes Shipped.
+
+These explanations improve transparency and help managers understand
+how the machine learning model makes business predictions.
+
 """)
-
-
-
-
+    
 
 
 
