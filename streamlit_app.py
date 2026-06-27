@@ -823,51 +823,45 @@ and records the experiment using Weights & Biases.
 
     results = []
 
-    for trees in [50,100]:
+for trees in [50, 100, 150]:
+
+    for depth in [5, 10]:
 
         run = wandb.init(
             project="Chocolate-Sales",
             reinit=True,
             config={
-                "n_estimators":trees
+                "n_estimators": trees,
+                "max_depth": depth
             }
         )
 
         model = RandomForestRegressor(
             n_estimators=trees,
+            max_depth=depth,
             random_state=42
         )
 
-        model.fit(X_train,y_train)
+        model.fit(X_train, y_train)
 
         pred = model.predict(X_test)
 
-        mae = mean_absolute_error(y_test,pred)
-
-        rmse = np.sqrt(mean_squared_error(y_test,pred))
-
-        r2 = r2_score(y_test,pred)
+        mae = mean_absolute_error(y_test, pred)
+        rmse = np.sqrt(mean_squared_error(y_test, pred))
+        r2 = r2_score(y_test, pred)
 
         wandb.log({
-
-            "MAE":mae,
-
-            "RMSE":rmse,
-
-            "R2":r2
-
+            "MAE": mae,
+            "RMSE": rmse,
+            "R2": r2
         })
 
         results.append({
-
-            "Trees":trees,
-
-            "MAE":round(mae,2),
-
-            "RMSE":round(rmse,2),
-
-            "R²":round(r2,3)
-
+            "Trees": trees,
+            "Max Depth": depth,
+            "MAE": round(mae, 2),
+            "RMSE": round(rmse, 2),
+            "R²": round(r2, 3)
         })
 
         run.finish()
