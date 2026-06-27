@@ -889,8 +889,45 @@ Weights & Biases.
             })
     
             run.finish()
-        
 
+    result_df = pd.DataFrame(results)
+
+    st.subheader("Hyperparameter Experiment Results")
+
+    st.dataframe(result_df, use_container_width=True)
+    best = result_df.loc[result_df["R²"].idxmax()]
+    st.success(f"""
+### Best Model
+
+• Number of Trees: **{int(best['Trees'])}**
+
+• Maximum Depth: **{int(best['Max Depth'])}**
+
+• R² Score: **{best['R²']}**
+
+This model achieved the highest predictive performance among all experiments and was selected as the final model.
+""")
+    st.subheader("R² Score by Experiment")
+
+    fig, ax = plt.subplots(figsize=(8,5))
+    
+    sns.barplot(
+        data=result_df,
+        x="Trees",
+        y="R²",
+        hue="Max Depth",
+        palette="YlOrBr",
+        ax=ax
+    )
+    
+    ax.set_title("Comparison of Hyperparameter Experiments")
+    
+    st.pyplot(fig)
+    st.info("""
+**Interpretation**
+
+Six Random Forest models were trained using different combinations of the number of trees and maximum tree depth. The experiment with the highest R² score was selected as the final model. Increasing the number of trees generally improved model stability, while the maximum depth controlled model complexity. Weights & Biases was used to record each experiment and compare model performance.
+""")
 
 
     # ============================================
