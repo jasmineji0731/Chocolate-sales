@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
+import wandb
 
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
@@ -784,14 +785,109 @@ These explanations improve transparency and help managers understand
 how the machine learning model makes business predictions.
 
 """)
+    # ============================================
+# Page 5: Hyperparameter Tuning
+# ============================================
 
+elif page == "⚙️ Hyperparameter Tuning":
 
+    st.title("⚙️ Hyperparameter Tuning with Weights & Biases")
 
+    st.write("""
+This page compares different Random Forest hyperparameters
+and records the experiment using Weights & Biases.
+""")
 
+    sample_df = df.sample(n=2000, random_state=42)
 
+    X = sample_df[
+        [
+            "Discount_Pct",
+            "Price_per_Box",
+            "Marketing_Spend"
+        ]
+    ]
 
-    
-    
+    y = sample_df["Boxes_Shipped"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=42
+    )
+
+    results = []
+
+    for trees in [50,100]:
+
+        run = wandb.init(
+            project="Chocolate-Sales",
+            reinit=True,
+            config={
+                "n_estimators":trees
+            }
+        )
+
+        model = RandomForestRegressor(
+            n_estimators=trees,
+            random_state=42
+        )
+
+        model.fit(X_train,y_train)
+
+        pred = model.predict(X_test)
+
+        mae = mean_absolute_error(y_test,pred)
+
+        rmse = np.sqrt(mean_squared_error(y_test,pred))
+
+        r2 = r2_score(y_test,pred)
+
+        wandb.log({
+
+            "MAE":mae,
+
+            "RMSE":rmse,
+
+            "R2":r2
+
+        })
+
+        results.append({
+
+            "Trees":trees,
+
+            "MAE":round(mae,2),
+
+            "RMSE":round(rmse,2),
+
+            "R²":round(r2,3)
+
+        })
+
+        run.finish()
+
+    result_df = pd.DataFrame(results)
+
+    st.subheader("Experiment Results")
+
+    st.dataframe(result_df,use_container_width=True)
+
+    best = result_df.loc[result_df["R²"].idxmax()]
+
+    st.success(f"""
+Best Model
+
+Trees : {int(best['Trees'])}
+
+R² Score : {best['R²']}
+""")
+
+    st.write("""
+The experiment results have been logged using
+Weights & Biases.
+""")
     
 
 
