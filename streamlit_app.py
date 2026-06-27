@@ -705,8 +705,8 @@ elif page == "🧠 Explainable AI":
     model.fit(X_train, y_train)
 
     explainer = shap.TreeExplainer(model)
-
-    shap_values = explainer.shap_values(X_test)
+    X_sample = X_test.sample(500, random_state=42)
+    shap_values = explainer.shap_values(X_sample)
 
     st.subheader("Feature Importance")
 
@@ -714,7 +714,7 @@ elif page == "🧠 Explainable AI":
 
     shap.summary_plot(
         shap_values,
-        X_test,
+        X_sample,
         plot_type="bar",
         show=False
     )
@@ -729,7 +729,7 @@ elif page == "🧠 Explainable AI":
 
     shap.summary_plot(
         shap_values,
-        X_test,
+        X_sample,
         show=False
     )
 
