@@ -668,17 +668,15 @@ The closer the points are to the diagonal trend, the better the model performs.
 
 elif page == "🧠 Explainable AI":
 
-    st.markdown(
-        "<h1 style='font-size:46px;'>🧠 Explainable AI</h1>",
-        unsafe_allow_html=True
-    )
+    st.title("🧠 Explainable AI")
 
     st.write("""
-    This page explains how the machine learning model makes predictions.
+This page explains which variables are most important for predicting
+the number of chocolate boxes shipped.
+""")
 
-    SHAP (SHapley Additive exPlanations) identifies which variables
-    have the greatest influence on predicting chocolate boxes shipped.
-    """)
+    # Small sample for faster processing
+    sample_df = df.sample(n=3000, random_state=42)
 
     X = sample_df[
         [
@@ -690,65 +688,50 @@ elif page == "🧠 Explainable AI":
 
     y = sample_df["Boxes_Shipped"]
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X,
-        y,
-        test_size=0.2,
-        random_state=42
-    )
-
     model = RandomForestRegressor(
-        n_estimators=100,
+        n_estimators=50,
         random_state=42
     )
 
-    model.fit(X_train, y_train)
+    model.fit(X, y)
 
-    explainer = shap.TreeExplainer(model)
-    X_sample = X_test.sample(500, random_state=42)
-    shap_values = explainer.shap_values(X_sample)
+    importance = pd.DataFrame({
 
-    st.subheader("Feature Importance")
+        "Feature":X.columns,
 
-    fig = plt.figure(figsize=(8,5))
+        "Importance":model.feature_importances_
 
-    shap.summary_plot(
-        shap_values,
-        X_sample,
-        plot_type="bar",
-        show=False
+    })
+
+    importance = importance.sort_values(
+        "Importance",
+        ascending=False
     )
 
-    st.pyplot(fig)
+    fig, ax = plt.subplots(figsize=(8,4))
 
-    plt.clf()
-
-    st.subheader("SHAP Summary Plot")
-
-    fig = plt.figure(figsize=(8,5))
-
-    shap.summary_plot(
-        shap_values,
-        X_sample,
-        show=False
+    sns.barplot(
+        data=importance,
+        x="Importance",
+        y="Feature",
+        palette="YlOrBr",
+        ax=ax
     )
 
+    ax.set_title("Feature Importance")
+
     st.pyplot(fig)
-
-    st.divider()
-
-    st.subheader("Business Interpretation")
 
     st.success("""
-• Price per Box is one of the strongest variables affecting shipment prediction.
+Business Interpretation
 
-• Marketing Spend has a positive impact on customer demand.
+• Features with larger importance contribute more to the prediction.
 
-• Discount Percentage also influences shipment volume.
+• Price per Box and Marketing Spend have the greatest influence.
 
-• SHAP shows how each feature increases or decreases the predicted Boxes Shipped.
+• Discount Percentage also contributes to shipment prediction.
 
-• This improves transparency and helps businesses understand the model's decisions.
+This explains why the machine learning model makes its predictions.
 """)
     # ============================================
 # Page 5: Hyperparameter Tuning
@@ -756,15 +739,14 @@ elif page == "🧠 Explainable AI":
 
 elif page == "⚙️ Hyperparameter Tuning":
 
-    st.markdown(
-        "<h1 style='font-size:46px;'>⚙️ Hyperparameter Tuning</h1>",
-        unsafe_allow_html=True
-    )
+    st.title("⚙️ Hyperparameter Tuning")
 
     st.write("""
-    This page compares different machine learning settings and selects
-    the best-performing Random Forest model.
-    """)
+This page compares different Random Forest settings
+to select the best-performing model.
+""")
+
+    sample_df = df.sample(n=3000, random_state=42)
 
     X = sample_df[
         [
@@ -783,108 +765,53 @@ elif page == "⚙️ Hyperparameter Tuning":
         random_state=42
     )
 
-    param_grid = {
+    results = []
 
-        "n_estimators":[50,100],
+    for trees in [50,100]:
 
-        "max_depth":[5,10],
-
-    }
-
-    with st.spinner("Searching for best parameters..."):
-
-        grid = GridSearchCV(
-
-            RandomForestRegressor(random_state=42),
-
-            param_grid,
-
-            cv=3,
-
-            scoring="r2"
-
+        model = RandomForestRegressor(
+            n_estimators=trees,
+            random_state=42
         )
 
-        grid.fit(X_train,y_train)
+        model.fit(X_train,y_train)
 
-    best_model = grid.best_estimator_
+        pred = model.predict(X_test)
 
-    predictions = best_model.predict(X_test)
+        results.append({
 
-    mae = mean_absolute_error(y_test,predictions)
+            "Trees":trees,
 
-    rmse = np.sqrt(mean_squared_error(y_test,predictions))
+            "R²":round(r2_score(y_test,pred),3),
 
-    r2 = r2_score(y_test,predictions)
+            "RMSE":round(
+                np.sqrt(mean_squared_error(y_test,pred)),2
+            )
 
-    st.subheader("Best Hyperparameters")
+        })
 
-    st.write(grid.best_params_)
+    result_df = pd.DataFrame(results)
 
-    st.subheader("Model Performance")
+    st.subheader("Hyperparameter Results")
 
-    c1,c2,c3 = st.columns(3)
+    st.dataframe(result_df,use_container_width=True)
 
-    c1.metric("MAE",f"{mae:.2f}")
+    best = result_df.loc[result_df["R²"].idxmax()]
 
-    c2.metric("RMSE",f"{rmse:.2f}")
+    st.success(f"""
+Best Model
 
-    c3.metric("R²",f"{r2:.3f}")
+Number of Trees: {int(best['Trees'])}
 
-    st.divider()
-
-    linear = LinearRegression()
-
-    linear.fit(X_train,y_train)
-
-    lr_pred = linear.predict(X_test)
-
-    comparison = pd.DataFrame({
-
-        "Model":[
-
-            "Linear Regression",
-
-            "Random Forest"
-
-        ],
-
-        "MAE":[
-
-            mean_absolute_error(y_test,lr_pred),
-
-            mae
-
-        ],
-
-        "RMSE":[
-
-            np.sqrt(mean_squared_error(y_test,lr_pred)),
-
-            rmse
-
-        ],
-
-        "R²":[
-
-            r2_score(y_test,lr_pred),
-
-            r2
-
-        ]
-
-    })
-
-    st.subheader("Model Comparison")
-
-    st.dataframe(comparison,use_container_width=True)
-
-    st.success("""
-Random Forest produced stronger prediction performance by learning nonlinear
-relationships between pricing, discounts and marketing investment.
-
-The tuned Random Forest model was selected as the final model.
+Best R² Score: {best['R²']}
 """)
+
+
+
+
+
+
+
     # ============================================
 # Page 6: Conclusion
 # ============================================
