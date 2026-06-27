@@ -785,11 +785,9 @@ elif page == "⚙️ Hyperparameter Tuning":
 
     param_grid = {
 
-        "n_estimators":[50,100,200],
+        "n_estimators":[50,100],
 
-        "max_depth":[5,10,None],
-
-        "min_samples_split":[2,5]
+        "max_depth":[5,10],
 
     }
 
@@ -801,7 +799,7 @@ elif page == "⚙️ Hyperparameter Tuning":
 
             param_grid,
 
-            cv=5,
+            cv=3,
 
             scoring="r2"
 
