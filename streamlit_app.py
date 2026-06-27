@@ -821,50 +821,9 @@ and records the experiment using Weights & Biases.
         random_state=42
     )
 
-    results = []
+    
 
-for trees in [50, 100, 150]:
-
-    for depth in [5, 10]:
-
-        run = wandb.init(
-            project="Chocolate-Sales",
-            reinit=True,
-            config={
-                "n_estimators": trees,
-                "max_depth": depth
-            }
-        )
-
-        model = RandomForestRegressor(
-            n_estimators=trees,
-            max_depth=depth,
-            random_state=42
-        )
-
-        model.fit(X_train, y_train)
-
-        pred = model.predict(X_test)
-
-        mae = mean_absolute_error(y_test, pred)
-        rmse = np.sqrt(mean_squared_error(y_test, pred))
-        r2 = r2_score(y_test, pred)
-
-        wandb.log({
-            "MAE": mae,
-            "RMSE": rmse,
-            "R2": r2
-        })
-
-        results.append({
-            "Trees": trees,
-            "Max Depth": depth,
-            "MAE": round(mae, 2),
-            "RMSE": round(rmse, 2),
-            "R²": round(r2, 3)
-        })
-
-        run.finish()
+    
 
     result_df = pd.DataFrame(results)
 
@@ -886,7 +845,51 @@ R² Score : {best['R²']}
 The experiment results have been logged using
 Weights & Biases.
 """)
+    results = []
+
+    for trees in [50, 100, 150]:
     
+        for depth in [5, 10]:
+    
+            run = wandb.init(
+                project="Chocolate-Sales",
+                reinit=True,
+                config={
+                    "n_estimators": trees,
+                    "max_depth": depth
+                }
+            )
+    
+            model = RandomForestRegressor(
+                n_estimators=trees,
+                max_depth=depth,
+                random_state=42
+            )
+    
+            model.fit(X_train, y_train)
+    
+            pred = model.predict(X_test)
+    
+            mae = mean_absolute_error(y_test, pred)
+            rmse = np.sqrt(mean_squared_error(y_test, pred))
+            r2 = r2_score(y_test, pred)
+    
+            wandb.log({
+                "MAE": mae,
+                "RMSE": rmse,
+                "R2": r2
+            })
+    
+            results.append({
+                "Trees": trees,
+                "Max Depth": depth,
+                "MAE": round(mae, 2),
+                "RMSE": round(rmse, 2),
+                "R²": round(r2, 3)
+            })
+    
+            run.finish()
+        
 
 
 
