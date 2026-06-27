@@ -661,3 +661,91 @@ support production planning, and improve marketing decisions.
 A good prediction model should generate predictions close to the actual shipment values.
 The closer the points are to the diagonal trend, the better the model performs.
 """)
+    # ============================================
+# Page 4: Explainable AI
+# ============================================
+
+elif page == "🧠 Explainable AI":
+
+    st.markdown(
+        "<h1 style='font-size:46px;'>🧠 Explainable AI</h1>",
+        unsafe_allow_html=True
+    )
+
+    st.write("""
+    This page explains how the machine learning model makes predictions.
+
+    SHAP (SHapley Additive exPlanations) identifies which variables
+    have the greatest influence on predicting chocolate boxes shipped.
+    """)
+
+    X = df[
+        [
+            "Discount_Pct",
+            "Price_per_Box",
+            "Marketing_Spend"
+        ]
+    ]
+
+    y = df["Boxes_Shipped"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=42
+    )
+
+    model = RandomForestRegressor(
+        n_estimators=100,
+        random_state=42
+    )
+
+    model.fit(X_train, y_train)
+
+    explainer = shap.TreeExplainer(model)
+
+    shap_values = explainer.shap_values(X_test)
+
+    st.subheader("Feature Importance")
+
+    fig = plt.figure(figsize=(8,5))
+
+    shap.summary_plot(
+        shap_values,
+        X_test,
+        plot_type="bar",
+        show=False
+    )
+
+    st.pyplot(fig)
+
+    plt.clf()
+
+    st.subheader("SHAP Summary Plot")
+
+    fig = plt.figure(figsize=(8,5))
+
+    shap.summary_plot(
+        shap_values,
+        X_test,
+        show=False
+    )
+
+    st.pyplot(fig)
+
+    st.divider()
+
+    st.subheader("Business Interpretation")
+
+    st.success("""
+• Price per Box is one of the strongest variables affecting shipment prediction.
+
+• Marketing Spend has a positive impact on customer demand.
+
+• Discount Percentage also influences shipment volume.
+
+• SHAP shows how each feature increases or decreases the predicted Boxes Shipped.
+
+• This improves transparency and helps businesses understand the model's decisions.
+""")
