@@ -749,3 +749,252 @@ elif page == "🧠 Explainable AI":
 
 • This improves transparency and helps businesses understand the model's decisions.
 """)
+    # ============================================
+# Page 5: Hyperparameter Tuning
+# ============================================
+
+elif page == "⚙️ Hyperparameter Tuning":
+
+    st.markdown(
+        "<h1 style='font-size:46px;'>⚙️ Hyperparameter Tuning</h1>",
+        unsafe_allow_html=True
+    )
+
+    st.write("""
+    This page compares different machine learning settings and selects
+    the best-performing Random Forest model.
+    """)
+
+    X = df[
+        [
+            "Discount_Pct",
+            "Price_per_Box",
+            "Marketing_Spend"
+        ]
+    ]
+
+    y = df["Boxes_Shipped"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=42
+    )
+
+    param_grid = {
+
+        "n_estimators":[50,100,200],
+
+        "max_depth":[5,10,None],
+
+        "min_samples_split":[2,5]
+
+    }
+
+    with st.spinner("Searching for best parameters..."):
+
+        grid = GridSearchCV(
+
+            RandomForestRegressor(random_state=42),
+
+            param_grid,
+
+            cv=5,
+
+            scoring="r2"
+
+        )
+
+        grid.fit(X_train,y_train)
+
+    best_model = grid.best_estimator_
+
+    predictions = best_model.predict(X_test)
+
+    mae = mean_absolute_error(y_test,predictions)
+
+    rmse = np.sqrt(mean_squared_error(y_test,predictions))
+
+    r2 = r2_score(y_test,predictions)
+
+    wandb.init(
+        project="Chocolate-Sales",
+        reinit=True
+    )
+
+    wandb.log({
+
+        "MAE":mae,
+
+        "RMSE":rmse,
+
+        "R2":r2,
+
+        "Best Parameters":str(grid.best_params_)
+
+    })
+
+    wandb.finish()
+
+    st.subheader("Best Hyperparameters")
+
+    st.write(grid.best_params_)
+
+    st.subheader("Model Performance")
+
+    c1,c2,c3 = st.columns(3)
+
+    c1.metric("MAE",f"{mae:.2f}")
+
+    c2.metric("RMSE",f"{rmse:.2f}")
+
+    c3.metric("R²",f"{r2:.3f}")
+
+    st.divider()
+
+    linear = LinearRegression()
+
+    linear.fit(X_train,y_train)
+
+    lr_pred = linear.predict(X_test)
+
+    comparison = pd.DataFrame({
+
+        "Model":[
+
+            "Linear Regression",
+
+            "Random Forest"
+
+        ],
+
+        "MAE":[
+
+            mean_absolute_error(y_test,lr_pred),
+
+            mae
+
+        ],
+
+        "RMSE":[
+
+            np.sqrt(mean_squared_error(y_test,lr_pred)),
+
+            rmse
+
+        ],
+
+        "R²":[
+
+            r2_score(y_test,lr_pred),
+
+            r2
+
+        ]
+
+    })
+
+    st.subheader("Model Comparison")
+
+    st.dataframe(comparison,use_container_width=True)
+
+    st.success("""
+Random Forest produced stronger prediction performance by learning nonlinear
+relationships between pricing, discounts and marketing investment.
+
+The tuned Random Forest model was selected as the final model.
+""")
+    # ============================================
+# Page 6: Conclusion
+# ============================================
+
+elif page == "📄 Conclusion":
+
+    st.markdown(
+        "<h1 style='font-size:46px;'>📄 Project Conclusion</h1>",
+        unsafe_allow_html=True
+    )
+
+    st.header("Project Summary")
+
+    st.write("""
+This project developed a Streamlit dashboard that analyzes historical
+chocolate sales data and predicts the number of chocolate boxes shipped
+using machine learning.
+
+The application combines business analytics, data visualization,
+predictive modeling, explainable AI, and hyperparameter tuning to
+support better business decision-making.
+""")
+
+    st.divider()
+
+    st.header("Key Findings")
+
+    st.write("""
+• Marketing Spend positively influences shipment volume.
+
+• Price per Box is one of the strongest predictors.
+
+• Discount Percentage also contributes to shipment prediction.
+
+• Countries and sales channels exhibit different shipment patterns.
+
+• Machine learning can accurately estimate future shipment demand.
+""")
+
+    st.divider()
+
+    st.header("Machine Learning Results")
+
+    st.write("""
+Two machine learning models were developed:
+
+• Linear Regression
+
+• Random Forest Regressor
+
+After hyperparameter tuning, Random Forest achieved the strongest prediction
+performance and was selected as the final model.
+""")
+
+    st.divider()
+
+    st.header("Business Recommendations")
+
+    st.write("""
+1. Increase inventory for high-demand markets.
+
+2. Allocate marketing budgets efficiently.
+
+3. Monitor pricing strategies to maximize demand.
+
+4. Focus promotional campaigns on high-performing products.
+
+5. Use predictive analytics to improve supply chain planning.
+""")
+
+    st.divider()
+
+    st.header("Future Improvements")
+
+    st.write("""
+• Include seasonal demand.
+
+• Include customer purchasing behavior.
+
+• Add weather and holiday effects.
+
+• Compare additional machine learning models such as XGBoost.
+
+• Deploy the model for real-time sales forecasting.
+""")
+
+    st.success("""
+Thank you for using the Chocolate Sales Dashboard.
+
+This project demonstrates how machine learning and explainable AI can
+support smarter business decisions and improve demand forecasting.
+""")
+    
