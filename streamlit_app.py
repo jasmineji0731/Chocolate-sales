@@ -662,14 +662,11 @@ support production planning, and improve marketing decisions.
 A good prediction model should generate predictions close to the actual shipment values.
 The closer the points are to the diagonal trend, the better the model performs.
 """)
+    # ============================================
+# Page 4: Explainable AI (SHAP)
+# ============================================
 
-
-
-
-
-
-    
-    elif page == "🧠 Explainable AI":
+elif page == "🧠 Explainable AI":
 
     st.markdown(
         "<h1 style='font-size:46px;'>🧠 Explainable AI (SHAP)</h1>",
@@ -787,6 +784,14 @@ These explanations improve transparency and help managers understand
 how the machine learning model makes business predictions.
 
 """)
+
+
+
+
+
+
+    
+    
     
 
 
