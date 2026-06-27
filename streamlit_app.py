@@ -820,31 +820,6 @@ and records the experiment using Weights & Biases.
         test_size=0.2,
         random_state=42
     )
-
-    
-
-    
-
-    result_df = pd.DataFrame(results)
-
-    st.subheader("Experiment Results")
-
-    st.dataframe(result_df,use_container_width=True)
-
-    best = result_df.loc[result_df["R²"].idxmax()]
-
-    st.success(f"""
-Best Model
-
-Trees : {int(best['Trees'])}
-
-R² Score : {best['R²']}
-""")
-
-    st.write("""
-The experiment results have been logged using
-Weights & Biases.
-""")
     results = []
 
     for trees in [50, 100, 150]:
