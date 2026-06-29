@@ -3,13 +3,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-#import shap
-#import wandb
-#import os
+import shap
+import wandb
+import os
 
 
-#if "WANDB_API_KEY" in os.environ:
-    #wandb.login(key=os.environ["WANDB_API_KEY"])
+if "WANDB_API_KEY" in os.environ:
+    wandb.login(key=os.environ["WANDB_API_KEY"])
     
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
