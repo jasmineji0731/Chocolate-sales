@@ -819,95 +819,94 @@ elif page == "⚙️ Hyperparameter Tuning":
     st.title("⚙️ Model Comparison & Hyperparameter Tuning")
 
     st.write("""
-    This page compares three machine learning models:
-    
-    • Linear Regression
-    
-    • Decision Tree Regressor
-    
-    • Random Forest Regressor
-    
-    Different hyperparameters are tested to identify the model with the
-    best predictive performance.
-    """)
-    
-        # ----------------------------
-        # Prepare Data
-        # ----------------------------
-    
-        sample_df = df.sample(
-            n=min(5000, len(df)),
-            random_state=42
-        )
-    
-        X = sample_df[
-            [
-                "Discount_Pct",
-                "Price_per_Box",
-                "Marketing_Spend"
-            ]
+This page compares three machine learning models:
+
+• Linear Regression
+
+• Decision Tree Regressor
+
+• Random Forest Regressor
+
+Different hyperparameters are tested to identify the model with the
+best predictive performance.
+""")
+
+    # ----------------------------
+    # Prepare Data
+    # ----------------------------
+
+    sample_df = df.sample(
+        n=min(5000, len(df)),
+        random_state=42
+    )
+
+    X = sample_df[
+        [
+            "Discount_Pct",
+            "Price_per_Box",
+            "Marketing_Spend"
         ]
-    
-        y = sample_df["Boxes_Shipped"]
-    
-        X_train, X_test, y_train, y_test = train_test_split(
-            X,
-            y,
-            test_size=0.2,
-            random_state=42
-        )
-    
-        results = []
-    
-        PROJECT_NAME = "Chocolate-Sales"
-    
-       # ======================================================
-    # Linear Regression Experiments
+    ]
+
+    y = sample_df["Boxes_Shipped"]
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=42
+    )
+
+    results = []
+
+    PROJECT_NAME = "Chocolate-Sales"
     # ======================================================
-    
-    for fit in [True, False]:
-    
-        run = wandb.init(
-            project=PROJECT_NAME,
-            mode="disabled",
-            reinit=True,
-            config={
-                "Model": "Linear Regression",
-                "fit_intercept": fit
-            }
-        )
-    
-        model = LinearRegression(
-            fit_intercept=fit
-        )
-    
-        model.fit(X_train, y_train)
-    
-        pred = model.predict(X_test)
-    
-        mae = mean_absolute_error(y_test, pred)
-        rmse = np.sqrt(mean_squared_error(y_test, pred))
-        r2 = r2_score(y_test, pred)
-    
-        wandb.log({
+# Linear Regression Experiments
+# ======================================================
+
+for fit in [True, False]:
+
+    run = wandb.init(
+        project=PROJECT_NAME,
+        mode="disabled",
+        reinit=True,
+        config={
             "Model": "Linear Regression",
-            "fit_intercept": fit,
-            "MAE": mae,
-            "RMSE": rmse,
-            "R2": r2
-        })
-    
-        results.append({
-            "Model": "Linear Regression",
-            "Parameter": f"fit_intercept={fit}",
-            "MAE": round(mae,2),
-            "RMSE": round(rmse,2),
-            "R²": round(r2,3)
-        })
-    
-        run.finish()
-    
-    
+            "fit_intercept": fit
+        }
+    )
+
+    model = LinearRegression(
+        fit_intercept=fit
+    )
+
+    model.fit(X_train, y_train)
+
+    pred = model.predict(X_test)
+
+    mae = mean_absolute_error(y_test, pred)
+    rmse = np.sqrt(mean_squared_error(y_test, pred))
+    r2 = r2_score(y_test, pred)
+
+    wandb.log({
+        "Model": "Linear Regression",
+        "fit_intercept": fit,
+        "MAE": mae,
+        "RMSE": rmse,
+        "R2": r2
+    })
+
+    results.append({
+        "Model": "Linear Regression",
+        "Parameter": f"fit_intercept={fit}",
+        "MAE": round(mae,2),
+        "RMSE": round(rmse,2),
+        "R²": round(r2,3)
+    })
+
+    run.finish()
+
+
     # ======================================================
     # Decision Tree Experiments
     # ======================================================
@@ -954,8 +953,6 @@ elif page == "⚙️ Hyperparameter Tuning":
         })
     
         run.finish()
-    
-    
     # ======================================================
     # Random Forest Experiments
     # ======================================================
@@ -1007,52 +1004,50 @@ elif page == "⚙️ Hyperparameter Tuning":
             })
     
             run.finish()
-            
-        
     # ==========================================
     # Results Table
     # ==========================================
-        
+    
     result_df = pd.DataFrame(results)
-        
+    
     st.subheader("📊 Model Comparison Results")
-        
+    
     st.dataframe(result_df, use_container_width=True)
-        
+    
     st.divider()
-        
-        # ==========================================
-        # Best Model
-        # ==========================================
-        
+    
+    # ==========================================
+    # Best Model
+    # ==========================================
+    
     best = result_df.loc[result_df["R²"].idxmax()]
-        
+    
     st.success(f"""
     ### 🏆 Best Performing Model
-        
+    
     **Model:** {best["Model"]}
-        
+    
     **Parameter:** {best["Parameter"]}
-        
+    
     **MAE:** {best["MAE"]}
-        
+    
     **RMSE:** {best["RMSE"]}
-        
+    
     **R² Score:** {best["R²"]}
-        
+    
     This model achieved the highest predictive accuracy among all experiments.
     """)
-        
+    
     st.divider()
-        
+    
     # ==========================================
-        # Model Comparison Chart
-        # ==========================================
-        
+    # Model Comparison Chart
+    # ==========================================
+    
     st.subheader("📈 R² Score Comparison")
-        
+    
     fig, ax = plt.subplots(figsize=(10,5))
-        
+    
     sns.barplot(
         data=result_df,
         x="Model",
@@ -1061,44 +1056,45 @@ elif page == "⚙️ Hyperparameter Tuning":
         palette="YlOrBr",
         ax=ax
     )
-        
+    
     ax.set_ylabel("R² Score")
     ax.set_xlabel("Machine Learning Model")
     ax.set_title("Comparison of Machine Learning Models")
-        
+    
     plt.xticks(rotation=20)
-        
+    
     st.pyplot(fig)
-        
+    
     plt.close(fig)
-        
+    
     st.divider()
-        
-     # ==========================================
+    
+    # ==========================================
     # Interpretation
     # ==========================================
-        
+    
     st.subheader("Business Interpretation")
-        
+    
     st.write("""
     Ten machine learning experiments were conducted to compare the predictive
     performance of three algorithms: Linear Regression, Decision Tree Regressor,
     and Random Forest Regressor.
-        
-     Linear Regression served as the baseline model and assumes a linear
+    
+    Linear Regression served as the baseline model and assumes a linear
     relationship between the predictors and shipment volume.
-        
+    
     Decision Tree improved model flexibility by capturing nonlinear patterns,
     although deeper trees may increase the risk of overfitting.
-        
+    
     Random Forest consistently achieved the highest predictive performance by
     combining multiple decision trees, reducing model variance and improving
     generalization.
-        
+    
     Among all experiments, the model shown above achieved the highest R² score
     and was therefore selected as the final prediction model for this project.
     """)
         
+    
 
 # ============================================
 # Page 6: Conclusion
