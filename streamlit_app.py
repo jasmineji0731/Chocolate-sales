@@ -7,9 +7,6 @@ import shap
 import wandb
 from sklearn.tree import DecisionTreeRegressor
 import os
-
-if "WANDB_API_KEY" in os.environ:
-    wandb.login(key=os.environ["WANDB_API_KEY"])
     
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
