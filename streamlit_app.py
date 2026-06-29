@@ -288,7 +288,7 @@ margin-bottom:10px;
 
     st.dataframe(df.describe(), use_container_width=True)
 
-###
+
 # ============================================
 # Page 2: Data Visualization
 # ============================================
@@ -516,7 +516,6 @@ elif page == "📊 Data Visualization":
     predictors in the machine learning model.
     """)
 
-###
 
  # ============================================
 # Page 3: Prediction
@@ -677,7 +676,7 @@ The closer the points are to the diagonal trend, the better the model performs.
 
 
 
-
+###
     # ============================================
 # Page 4: Explainable AI (SHAP)
 # ============================================
@@ -801,6 +800,11 @@ These explanations improve transparency and help managers understand
 how the machine learning model makes business predictions.
 
 """)
+
+###
+
+
+
     # ============================================
 # Page 5: Hyperparameter Tuning
 # ============================================
