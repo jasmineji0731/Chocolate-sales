@@ -301,7 +301,8 @@ elif page == "📊 Data Visualization":
 
     st.markdown("### Key Business Insights from Chocolate Sales Data")
 
-    st.write("""This page explores important patterns in the chocolate sales dataset using
+    st.write("""
+This page explores important patterns in the chocolate sales dataset using
     **Seaborn** and **Matplotlib** visualizations. These charts help identify
     business insights related to countries, sales channels, products, marketing
     investment, pricing, and shipment volume.
