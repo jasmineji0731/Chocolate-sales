@@ -848,7 +848,7 @@ and records the experiment using Weights & Biases.
     
             run = wandb.init(
                 project="Chocolate-Sales",
-                mode="disabled"
+                mode="disabled",
                 reinit=True,
                 config={
                     "n_estimators": trees,
