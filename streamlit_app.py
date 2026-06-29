@@ -8,8 +8,9 @@ import wandb
 import os
 
 
-wandb.login(key=os.environ["WANDB_API_KEY"])
-
+if "WANDB_API_KEY" in os.environ:
+    wandb.login(key=os.environ["WANDB_API_KEY"])
+    
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -750,11 +751,11 @@ Chocolate Boxes Shipped using SHAP (SHapley Additive exPlanations).
     fig = plt.figure(figsize=(8,5))
 
     shap.summary_plot(
-        shap_values,
-        X_test,
-        plot_type="bar",
-        show=False
-    )
+    shap_values,
+    sample,
+    plot_type="bar",
+    show=False
+)
 
     st.pyplot(fig)
 
@@ -767,10 +768,10 @@ Chocolate Boxes Shipped using SHAP (SHapley Additive exPlanations).
     fig = plt.figure(figsize=(8,5))
 
     shap.summary_plot(
-        shap_values,
-        X_test,
-        show=False
-    )
+    shap_values,
+    sample,
+    show=False
+)
 
     st.pyplot(fig)
 
