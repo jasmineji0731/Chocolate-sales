@@ -675,10 +675,7 @@ The closer the points are to the diagonal trend, the better the model performs.
 
 
 
-
-
-
-    # ============================================
+# ============================================
 # Page 4: Explainable AI (SHAP)
 # ============================================
 
@@ -690,18 +687,17 @@ elif page == "🧠 Explainable AI":
     )
 
     st.write("""
-This page explains how the Random Forest model predicts the number of
-Chocolate Boxes Shipped using SHAP (SHapley Additive exPlanations).
+This page explains how the Random Forest model predicts
+**Boxes Shipped** using SHAP (SHapley Additive exPlanations).
 """)
 
-    # ---------------------------------------
-    # Use a sample to improve performance
-    # ---------------------------------------
-
-    sample = X_test.sample(
-    n=min(100, len(X_test)),
-    random_state=42
-)
+    # -----------------------------
+    # Prepare data
+    # -----------------------------
+    sample_df = df.sample(
+        n=min(2000, len(df)),
+        random_state=42
+    )
 
     X = sample_df[
         [
@@ -720,94 +716,117 @@ Chocolate Boxes Shipped using SHAP (SHapley Additive exPlanations).
         random_state=42
     )
 
-    # ---------------------------------------
-    # Cache the trained model
-    # ---------------------------------------
-
+    # -----------------------------
+    # Train model once
+    # -----------------------------
     @st.cache_resource
-    def train_model():
+    def train_rf():
 
         model = RandomForestRegressor(
-            n_estimators=50,
+            n_estimators=100,
             random_state=42
         )
 
         model.fit(X_train, y_train)
 
-        return model
+        explainer = shap.TreeExplainer(model)
 
-    model = train_model()
+        return model, explainer
 
-    # ---------------------------------------
-    # SHAP
-    # ---------------------------------------
+    model, explainer = train_rf()
+
+    # -----------------------------
+    # Small sample for SHAP
+    # -----------------------------
+    sample = X_test.sample(
+        n=min(100, len(X_test)),
+        random_state=42
+    )
 
     with st.spinner("Generating SHAP explanations..."):
 
-        sample = X_test.sample(100, random_state=42)
-
-        explainer = shap.TreeExplainer(model)
         shap_values = explainer.shap_values(sample)
 
     st.divider()
 
-    st.subheader("Feature Importance")
+    # -----------------------------
+    # Feature Importance
+    # -----------------------------
+    st.subheader("📊 SHAP Feature Importance")
+
     plt.close("all")
+
     fig = plt.figure(figsize=(8,5))
 
     shap.summary_plot(
-    shap_values,
-    sample,
-    plot_type="bar",
-    show=False
-)
+        shap_values,
+        sample,
+        plot_type="bar",
+        show=False
+    )
 
     st.pyplot(fig)
 
-    plt.close()
+    plt.close(fig)
+
+    st.info("""
+The bar chart ranks variables according to their overall importance.
+
+Features at the top contribute the most to predicting
+Boxes Shipped.
+""")
 
     st.divider()
 
-    st.subheader("SHAP Summary Plot")
+    # -----------------------------
+    # SHAP Summary
+    # -----------------------------
+    st.subheader("📈 SHAP Summary Plot")
+
     plt.close("all")
+
     fig = plt.figure(figsize=(8,5))
 
     shap.summary_plot(
-    shap_values,
-    sample,
-    show=False
-)
+        shap_values,
+        sample,
+        show=False
+    )
 
     st.pyplot(fig)
 
-    plt.close()
+    plt.close(fig)
+
+    st.info("""
+Each point represents one order.
+
+• Red = higher feature value
+
+• Blue = lower feature value
+
+Features pushing predictions higher appear on the right,
+while those lowering predictions appear on the left.
+""")
 
     st.divider()
 
     st.subheader("Business Interpretation")
 
     st.success("""
+Key insights from SHAP analysis:
 
-SHAP explains how each variable contributes to the prediction.
+• Price per Box has a strong influence on shipment prediction.
 
- Price per Box has a strong influence on shipment prediction.
+• Marketing Spend generally increases predicted shipment volume.
 
- Marketing Spend generally increases predicted shipment volume.
+• Discount Percentage also contributes to prediction performance.
 
- Discount Percentage also contributes to prediction performance.
+• Positive SHAP values increase predicted Boxes Shipped.
 
- Positive SHAP values increase predicted Boxes Shipped.
+• Negative SHAP values decrease predicted Boxes Shipped.
 
- Negative SHAP values decrease predicted Boxes Shipped.
-
-These explanations improve transparency and help managers understand
-how the machine learning model makes business predictions.
-
+These explanations improve model transparency and help managers understand how the Random Forest model makes business predictions.
 """)
-
-
-
-
 
     # ============================================
 # Page 5: Hyperparameter Tuning
