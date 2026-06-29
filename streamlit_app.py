@@ -288,7 +288,7 @@ margin-bottom:10px;
 
     st.dataframe(df.describe(), use_container_width=True)
 
-
+###
 # ============================================
 # Page 2: Data Visualization
 # ============================================
@@ -515,6 +515,8 @@ elif page == "📊 Data Visualization":
     Variables with stronger correlation with **Boxes_Shipped** may be useful
     predictors in the machine learning model.
     """)
+
+###
 
  # ============================================
 # Page 3: Prediction
