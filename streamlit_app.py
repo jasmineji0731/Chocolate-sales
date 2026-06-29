@@ -698,7 +698,10 @@ Chocolate Boxes Shipped using SHAP (SHapley Additive exPlanations).
     # Use a sample to improve performance
     # ---------------------------------------
 
-    sample_df = df.sample(n=200, random_state=42)
+    sample = X_test.sample(
+    n=min(100, len(X_test)),
+    random_state=42
+)
 
     X = sample_df[
         [
@@ -749,7 +752,7 @@ Chocolate Boxes Shipped using SHAP (SHapley Additive exPlanations).
     st.divider()
 
     st.subheader("Feature Importance")
-
+    plt.close("all")
     fig = plt.figure(figsize=(8,5))
 
     shap.summary_plot(
@@ -766,7 +769,7 @@ Chocolate Boxes Shipped using SHAP (SHapley Additive exPlanations).
     st.divider()
 
     st.subheader("SHAP Summary Plot")
-
+    plt.close("all")
     fig = plt.figure(figsize=(8,5))
 
     shap.summary_plot(
@@ -845,6 +848,7 @@ and records the experiment using Weights & Biases.
     
             run = wandb.init(
                 project="Chocolate-Sales",
+                mode="disabled"
                 reinit=True,
                 config={
                     "n_estimators": trees,
