@@ -340,7 +340,7 @@ elif page == "📊 Data Visualization":
     st.info(f"""
     **Business Insight:**  
     **{top_country}** has the highest total shipment volume, which suggests it is one of
-    the company’s strongest markets. The company can prioritize inventory allocation,
+    the companys strongest markets. The company can prioritize inventory allocation,
     marketing campaigns, and sales planning in this market.
     """)
 
