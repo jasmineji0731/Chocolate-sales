@@ -8,7 +8,7 @@ import wandb
 import os
 import wandb
 
-wandb.login(key=os.environ["WANDB_API_KEY"])
+# wandb.login(key=os.environ["WANDB_API_KEY"])
 
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
