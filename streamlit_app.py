@@ -1007,98 +1007,100 @@ for trees in [50, 100, 150]:
         })
 
         run.finish()
-        # ==========================================
-    # Results Table
-    # ==========================================
+        
     
-    result_df = pd.DataFrame(results)
+# ==========================================
+# Results Table
+# ==========================================
     
-    st.subheader("📊 Model Comparison Results")
+result_df = pd.DataFrame(results)
     
-    st.dataframe(result_df, use_container_width=True)
+st.subheader("📊 Model Comparison Results")
     
-    st.divider()
+st.dataframe(result_df, use_container_width=True)
+    
+st.divider()
     
     # ==========================================
     # Best Model
     # ==========================================
     
-    best = result_df.loc[result_df["R²"].idxmax()]
+best = result_df.loc[result_df["R²"].idxmax()]
     
-    st.success(f"""
-    ### 🏆 Best Performing Model
+st.success(f"""
+### 🏆 Best Performing Model
     
-    **Model:** {best["Model"]}
+**Model:** {best["Model"]}
     
-    **Parameter:** {best["Parameter"]}
+**Parameter:** {best["Parameter"]}
     
-    **MAE:** {best["MAE"]}
+**MAE:** {best["MAE"]}
     
-    **RMSE:** {best["RMSE"]}
+**RMSE:** {best["RMSE"]}
     
-    **R² Score:** {best["R²"]}
+**R² Score:** {best["R²"]}
     
-    This model achieved the highest predictive accuracy among all experiments.
-    """)
+This model achieved the highest predictive accuracy among all experiments.
+""")
     
-    st.divider()
+st.divider()
     
-    # ==========================================
+# ==========================================
     # Model Comparison Chart
     # ==========================================
     
-    st.subheader("📈 R² Score Comparison")
+st.subheader("📈 R² Score Comparison")
     
-    fig, ax = plt.subplots(figsize=(10,5))
+fig, ax = plt.subplots(figsize=(10,5))
     
-    sns.barplot(
-        data=result_df,
-        x="Model",
-        y="R²",
-        hue="Parameter",
-        palette="YlOrBr",
-        ax=ax
-    )
+sns.barplot(
+    data=result_df,
+    x="Model",
+    y="R²",
+    hue="Parameter",
+    palette="YlOrBr",
+    ax=ax
+)
     
-    ax.set_ylabel("R² Score")
-    ax.set_xlabel("Machine Learning Model")
-    ax.set_title("Comparison of Machine Learning Models")
+ax.set_ylabel("R² Score")
+ax.set_xlabel("Machine Learning Model")
+ax.set_title("Comparison of Machine Learning Models")
     
-    plt.xticks(rotation=20)
+plt.xticks(rotation=20)
     
-    st.pyplot(fig)
+st.pyplot(fig)
     
-    plt.close(fig)
+plt.close(fig)
     
-    st.divider()
+st.divider()
     
-    # ==========================================
-    # Interpretation
-    # ==========================================
+ # ==========================================
+# Interpretation
+# ==========================================
     
-    st.subheader("Business Interpretation")
+st.subheader("Business Interpretation")
     
-    st.write("""
-    Ten machine learning experiments were conducted to compare the predictive
-    performance of three algorithms: Linear Regression, Decision Tree Regressor,
-    and Random Forest Regressor.
+st.write("""
+Ten machine learning experiments were conducted to compare the predictive
+performance of three algorithms: Linear Regression, Decision Tree Regressor,
+and Random Forest Regressor.
     
-    Linear Regression served as the baseline model and assumes a linear
-    relationship between the predictors and shipment volume.
+ Linear Regression served as the baseline model and assumes a linear
+relationship between the predictors and shipment volume.
     
-    Decision Tree improved model flexibility by capturing nonlinear patterns,
-    although deeper trees may increase the risk of overfitting.
+Decision Tree improved model flexibility by capturing nonlinear patterns,
+although deeper trees may increase the risk of overfitting.
     
-    Random Forest consistently achieved the highest predictive performance by
-    combining multiple decision trees, reducing model variance and improving
-    generalization.
+Random Forest consistently achieved the highest predictive performance by
+combining multiple decision trees, reducing model variance and improving
+generalization.
     
-    Among all experiments, the model shown above achieved the highest R² score
-    and was therefore selected as the final prediction model for this project.
-    """)
+Among all experiments, the model shown above achieved the highest R² score
+and was therefore selected as the final prediction model for this project.
+""")
     
 
-    # ============================================
+# ============================================
 # Page 6: Conclusion
 # ============================================
 
