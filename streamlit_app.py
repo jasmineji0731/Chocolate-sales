@@ -303,10 +303,9 @@ elif page == "📊 Data Visualization":
 
     st.write("""
 This page explores important patterns in the chocolate sales dataset using
-    **Seaborn** and **Matplotlib** visualizations. These charts help identify
-    business insights related to countries, sales channels, products, marketing
-    investment, pricing, and shipment volume.
-    """)
+**Seaborn** and **Matplotlib** visualizations.
+These charts help identify business insights...
+""")
 
     st.divider()
 
@@ -338,7 +337,7 @@ This page explores important patterns in the chocolate sales dataset using
 
     top_country = country_boxes.index[0]
 
-    st.info(f"""
+    st.write(f"""
     **Business Insight:**  
     **{top_country}** has the highest total shipment volume, which suggests it is one of
     the companys strongest markets. The company can prioritize inventory allocation,
