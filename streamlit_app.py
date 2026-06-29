@@ -861,51 +861,51 @@ best predictive performance.
 
     PROJECT_NAME = "Chocolate-Sales"
     # ======================================================
-# Linear Regression Experiments
-# ======================================================
-
-for fit in [True, False]:
-
-    run = wandb.init(
-        project=PROJECT_NAME,
-        mode="disabled",
-        reinit=True,
-        config={
+    # Linear Regression Experiments
+    # ======================================================
+    
+    for fit in [True, False]:
+    
+        run = wandb.init(
+            project=PROJECT_NAME,
+            mode="disabled",
+            reinit=True,
+            config={
+                "Model": "Linear Regression",
+                "fit_intercept": fit
+            }
+        )
+    
+        model = LinearRegression(
+            fit_intercept=fit
+        )
+    
+        model.fit(X_train, y_train)
+    
+        pred = model.predict(X_test)
+    
+        mae = mean_absolute_error(y_test, pred)
+        rmse = np.sqrt(mean_squared_error(y_test, pred))
+        r2 = r2_score(y_test, pred)
+    
+        wandb.log({
             "Model": "Linear Regression",
-            "fit_intercept": fit
-        }
-    )
-
-    model = LinearRegression(
-        fit_intercept=fit
-    )
-
-    model.fit(X_train, y_train)
-
-    pred = model.predict(X_test)
-
-    mae = mean_absolute_error(y_test, pred)
-    rmse = np.sqrt(mean_squared_error(y_test, pred))
-    r2 = r2_score(y_test, pred)
-
-    wandb.log({
-        "Model": "Linear Regression",
-        "fit_intercept": fit,
-        "MAE": mae,
-        "RMSE": rmse,
-        "R2": r2
-    })
-
-    results.append({
-        "Model": "Linear Regression",
-        "Parameter": f"fit_intercept={fit}",
-        "MAE": round(mae,2),
-        "RMSE": round(rmse,2),
-        "R²": round(r2,3)
-    })
-
-    run.finish()
-
+            "fit_intercept": fit,
+            "MAE": mae,
+            "RMSE": rmse,
+            "R2": r2
+        })
+    
+        results.append({
+            "Model": "Linear Regression",
+            "Parameter": f"fit_intercept={fit}",
+            "MAE": round(mae,2),
+            "RMSE": round(rmse,2),
+            "R²": round(r2,3)
+        })
+    
+        run.finish()
+    
 
     # ======================================================
     # Decision Tree Experiments
