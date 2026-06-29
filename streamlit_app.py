@@ -667,6 +667,12 @@ support production planning, and improve marketing decisions.
 A good prediction model should generate predictions close to the actual shipment values.
 The closer the points are to the diagonal trend, the better the model performs.
 """)
+
+
+
+
+
+
     # ============================================
 # Page 4: Explainable AI (SHAP)
 # ============================================
@@ -687,7 +693,7 @@ Chocolate Boxes Shipped using SHAP (SHapley Additive exPlanations).
     # Use a sample to improve performance
     # ---------------------------------------
 
-    sample_df = df.sample(n=2000, random_state=42)
+    sample_df = df.sample(n=200, random_state=42)
 
     X = sample_df[
         [
@@ -730,9 +736,10 @@ Chocolate Boxes Shipped using SHAP (SHapley Additive exPlanations).
 
     with st.spinner("Generating SHAP explanations..."):
 
-        explainer = shap.TreeExplainer(model)
+        sample = X_test.sample(100, random_state=42)
 
-        shap_values = explainer.shap_values(X_test)
+        explainer = shap.TreeExplainer(model)
+        shap_values = explainer.shap_values(sample)
 
     st.divider()
 
