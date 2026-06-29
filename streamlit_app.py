@@ -786,15 +786,15 @@ Chocolate Boxes Shipped using SHAP (SHapley Additive exPlanations).
 
 SHAP explains how each variable contributes to the prediction.
 
-• Price per Box has a strong influence on shipment prediction.
+ Price per Box has a strong influence on shipment prediction.
 
-• Marketing Spend generally increases predicted shipment volume.
+ Marketing Spend generally increases predicted shipment volume.
 
-• Discount Percentage also contributes to prediction performance.
+ Discount Percentage also contributes to prediction performance.
 
-• Positive SHAP values increase predicted Boxes Shipped.
+ Positive SHAP values increase predicted Boxes Shipped.
 
-• Negative SHAP values decrease predicted Boxes Shipped.
+ Negative SHAP values decrease predicted Boxes Shipped.
 
 These explanations improve transparency and help managers understand
 how the machine learning model makes business predictions.
