@@ -257,9 +257,11 @@ margin-bottom:10px;
 
     st.header("Dataset Sample")
     st.write("The table below displays the first five observations from the processed dataset.")
-
-    st.dataframe(df.head(), use_container_width=True)
-
+        
+    display_df = df.copy()
+    display_df["Order_Date"] = display_df["Order_Date"].astype(str)
+    
+    st.dataframe(display_df.head(), use_container_width=True)
     st.divider()
 
     st.header("Missing Values After Processing")
