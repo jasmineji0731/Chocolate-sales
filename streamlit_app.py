@@ -287,233 +287,216 @@ margin-bottom:10px;
     """)
 
     st.dataframe(df.describe(), use_container_width=True)
-
-
 # ============================================
 # Page 2: Data Visualization
 # ============================================
+
 elif page == "📊 Data Visualization":
 
-    st.markdown(
-        "<h1 style='font-size:46px;'>📊 Data Visualization</h1>",
-        unsafe_allow_html=True
-    )
-
-    st.markdown("### Key Business Insights from Chocolate Sales Data")
+    st.title("📊 Data Visualization")
 
     st.write("""
-This page explores important patterns in the chocolate sales dataset using
-**Seaborn** and **Matplotlib** visualizations.
-These charts help identify business insights...
+This page explores key business patterns in the chocolate sales dataset.
+The visualizations help identify important relationships between sales,
+marketing, pricing, and shipment volume.
 """)
 
     st.divider()
 
-    # -----------------------------
-    # Chart 1
-    # -----------------------------
-    st.header("1. Total Boxes Shipped by Country")
-
-    country_boxes = (
-        df.groupby("Country")["Boxes_Shipped"]
-        .sum()
-        .sort_values(ascending=False)
+    # ----------------------------------
+    # Sample data
+    # ----------------------------------
+    plot_df = df.sample(
+        n=min(5000, len(df)),
+        random_state=42
     )
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    # ----------------------------------
+    # Chart 1
+    # ----------------------------------
+    st.subheader("1. Total Boxes Shipped by Country")
+
+    country = (
+        plot_df.groupby("Country", as_index=False)["Boxes_Shipped"]
+        .sum()
+        .sort_values("Boxes_Shipped", ascending=False)
+    )
+
+    fig, ax = plt.subplots(figsize=(9,5))
+
     sns.barplot(
-        x=country_boxes.index,
-        y=country_boxes.values,
+        data=country,
+        x="Country",
+        y="Boxes_Shipped",
+        hue="Country",
+        legend=False,
         palette="YlOrBr",
         ax=ax
     )
 
-    ax.set_title("Total Boxes Shipped by Country")
-    ax.set_xlabel("Country")
-    ax.set_ylabel("Total Boxes Shipped")
     plt.xticks(rotation=30)
 
     st.pyplot(fig)
 
-    top_country = country_boxes.index[0]
+    plt.close(fig)
 
-    st.write(f"""
-    **Business Insight:**  
-    **{top_country}** has the highest total shipment volume, which suggests it is one of
-    the companys strongest markets. The company can prioritize inventory allocation,
-    marketing campaigns, and sales planning in this market.
-    """)
+    st.success(f"""
+Highest shipment volume comes from **{country.iloc[0]['Country']}**,
+making it an important market for inventory planning.
+""")
 
     st.divider()
 
-    # -----------------------------
+    # ----------------------------------
     # Chart 2
-    # -----------------------------
-    st.header("2. Average Boxes Shipped by Sales Channel")
+    # ----------------------------------
+    st.subheader("2. Average Boxes Shipped by Channel")
 
-    channel_boxes = (
-        df.groupby("Channel")["Boxes_Shipped"]
+    channel = (
+        plot_df.groupby("Channel", as_index=False)["Boxes_Shipped"]
         .mean()
-        .sort_values(ascending=False)
     )
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    fig, ax = plt.subplots(figsize=(8,5))
+
     sns.barplot(
-        x=channel_boxes.index,
-        y=channel_boxes.values,
+        data=channel,
+        x="Channel",
+        y="Boxes_Shipped",
+        hue="Channel",
+        legend=False,
         palette="YlOrBr",
         ax=ax
     )
 
-    ax.set_title("Average Boxes Shipped by Sales Channel")
-    ax.set_xlabel("Sales Channel")
-    ax.set_ylabel("Average Boxes Shipped")
-
     st.pyplot(fig)
 
-    top_channel = channel_boxes.index[0]
+    plt.close(fig)
 
-    st.info(f"""
-    **Business Insight:**  
-    The **{top_channel}** channel has the highest average boxes shipped per order.
-    This suggests that channel strategy plays an important role in shipment performance
-    and should be considered in demand forecasting.
-    """)
+    st.info("""
+Different sales channels produce different shipment volumes.
+High-performing channels should receive additional marketing support.
+""")
 
     st.divider()
 
-    # -----------------------------
+    # ----------------------------------
     # Chart 3
-    # -----------------------------
-    st.header("3. Top 10 Products by Boxes Shipped")
+    # ----------------------------------
+    st.subheader("3. Top 10 Products")
 
-    product_boxes = (
-        df.groupby("Product")["Boxes_Shipped"]
+    product = (
+        plot_df.groupby("Product", as_index=False)["Boxes_Shipped"]
         .sum()
-        .sort_values(ascending=False)
+        .sort_values("Boxes_Shipped", ascending=False)
         .head(10)
     )
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=(10,6))
+
     sns.barplot(
-        x=product_boxes.values,
-        y=product_boxes.index,
+        data=product,
+        x="Boxes_Shipped",
+        y="Product",
+        hue="Product",
+        legend=False,
         palette="YlOrBr",
         ax=ax
     )
 
-    ax.set_title("Top 10 Products by Total Boxes Shipped")
-    ax.set_xlabel("Total Boxes Shipped")
-    ax.set_ylabel("Product")
-
     st.pyplot(fig)
 
-    top_product = product_boxes.index[0]
+    plt.close(fig)
 
-    st.info(f"""
-    **Business Insight:**  
-    **{top_product}** is the top-performing product by shipment volume.
-    High-demand products should receive stronger inventory support and may be prioritized
-    in marketing campaigns.
-    """)
+    st.info("""
+The highest-selling products should receive priority inventory allocation.
+""")
 
     st.divider()
-    # -----------------------------
+
+    # ----------------------------------
     # Chart 4
-    # -----------------------------
-    st.header("4. Marketing Spend vs Boxes Shipped")
+    # ----------------------------------
+    st.subheader("4. Marketing Spend vs Boxes Shipped")
 
-    sample_df = df.sample(n=min(3000, len(df)), random_state=42)
+    fig, ax = plt.subplots(figsize=(9,5))
 
-    fig, ax = plt.subplots(figsize=(10, 5))
-    sns.regplot(
-        data=sample_df,
+    sns.scatterplot(
+        data=plot_df,
         x="Marketing_Spend",
         y="Boxes_Shipped",
-        scatter_kws={"alpha": 0.4},
-        line_kws={"color": "red"},
+        alpha=0.5,
         ax=ax
     )
 
-    ax.set_title("Marketing Spend vs Boxes Shipped")
-    ax.set_xlabel("Marketing Spend")
-    ax.set_ylabel("Boxes Shipped")
-
     st.pyplot(fig)
 
+    plt.close(fig)
+
     st.info("""
-    **Business Insight:**  
-    This chart shows a positive relationship between marketing spend and boxes shipped.
-    Higher marketing investment is generally associated with higher shipment volume,
-    suggesting that marketing budget allocation can influence customer demand.
-    """)
+Higher marketing spending is generally associated with higher shipment volume.
+""")
 
     st.divider()
 
-    # -----------------------------
+    # ----------------------------------
     # Chart 5
-    # -----------------------------
-    st.header("5. Price per Box vs Boxes Shipped")
+    # ----------------------------------
+    st.subheader("5. Price per Box vs Boxes Shipped")
 
-    fig, ax = plt.subplots(figsize=(10, 5))
-    sns.regplot(
-        data=sample_df,
+    fig, ax = plt.subplots(figsize=(9,5))
+
+    sns.scatterplot(
+        data=plot_df,
         x="Price_per_Box",
         y="Boxes_Shipped",
-        scatter_kws={"alpha": 0.4},
-        line_kws={"color": "red"},
+        alpha=0.5,
         ax=ax
     )
 
-    ax.set_title("Price per Box vs Boxes Shipped")
-    ax.set_xlabel("Price per Box")
-    ax.set_ylabel("Boxes Shipped")
-
     st.pyplot(fig)
 
+    plt.close(fig)
+
     st.info("""
-    **Business Insight:**  
-    This chart shows the relationship between price and shipment volume.
-    If higher prices are associated with lower shipment volume, the company may need
-    to balance pricing strategy with customer demand.
-    """)
+Pricing strategy influences customer demand and shipment volume.
+""")
 
     st.divider()
 
-    # -----------------------------
+    # ----------------------------------
     # Chart 6
-    # -----------------------------
-    st.header("6. Correlation Heatmap")
+    # ----------------------------------
+    st.subheader("6. Correlation Heatmap")
 
-    numeric_cols = [
-        "Discount_Pct",
-        "Price_per_Box",
-        "Marketing_Spend",
-        "Boxes_Shipped",
-        "Amount"
-    ]
+    corr = plot_df[
+        [
+            "Discount_Pct",
+            "Price_per_Box",
+            "Marketing_Spend",
+            "Boxes_Shipped",
+            "Amount"
+        ]
+    ].corr()
 
-    numeric_df = df[numeric_cols]
+    fig, ax = plt.subplots(figsize=(7,6))
 
-    fig, ax = plt.subplots(figsize=(8, 6))
     sns.heatmap(
-        numeric_df.corr(),
+        corr,
         annot=True,
         cmap="YlOrBr",
         fmt=".2f",
         ax=ax
     )
 
-    ax.set_title("Correlation Heatmap of Numerical Variables")
-
     st.pyplot(fig)
 
-    st.info("""
-    **Business Insight:**  
-    The heatmap shows the relationships between numerical variables.
-    Variables with stronger correlation with **Boxes_Shipped** may be useful
-    predictors in the machine learning model.
-    """)
+    plt.close(fig)
+
+    st.success("""
+The heatmap identifies the strongest numerical relationships and helps
+determine which variables are useful predictors for machine learning.
+""")
 
 
 
