@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
 import wandb
+from sklearn.tree import DecisionTreeRegressor
 import os
-
 
 #if "WANDB_API_KEY" in os.environ:
     #wandb.login(key=os.environ["WANDB_API_KEY"])
@@ -810,21 +810,35 @@ Key insights from SHAP analysis:
 
 These explanations improve model transparency and help managers understand how the Random Forest model makes business predictions.
 """)
-
-    # ============================================
+# ============================================
 # Page 5: Hyperparameter Tuning
 # ============================================
 
 elif page == "⚙️ Hyperparameter Tuning":
 
-    st.title("⚙️ Hyperparameter Tuning with Weights & Biases")
+    st.title("⚙️ Model Comparison & Hyperparameter Tuning")
 
     st.write("""
-This page compares different Random Forest hyperparameters
-and records the experiment using Weights & Biases.
+This page compares three machine learning models:
+
+• Linear Regression
+
+• Decision Tree Regressor
+
+• Random Forest Regressor
+
+Different hyperparameters are tested to identify the model with the
+best predictive performance.
 """)
 
-    sample_df = df.sample(n=2000, random_state=42)
+    # ----------------------------
+    # Prepare Data
+    # ----------------------------
+
+    sample_df = df.sample(
+        n=min(5000, len(df)),
+        random_state=42
+    )
 
     X = sample_df[
         [
@@ -842,89 +856,245 @@ and records the experiment using Weights & Biases.
         test_size=0.2,
         random_state=42
     )
+
     results = []
 
-    for trees in [50, 100, 150]:
-    
-        for depth in [5, 10]:
-    
-            run = wandb.init(
-                project="Chocolate-Sales",
-                mode="disabled",
-                reinit=True,
-                config={
-                    "n_estimators": trees,
-                    "max_depth": depth
-                }
-            )
-    
-            model = RandomForestRegressor(
-                n_estimators=trees,
-                max_depth=depth,
-                random_state=42
-            )
-    
-            model.fit(X_train, y_train)
-    
-            pred = model.predict(X_test)
-    
-            mae = mean_absolute_error(y_test, pred)
-            rmse = np.sqrt(mean_squared_error(y_test, pred))
-            r2 = r2_score(y_test, pred)
-    
-            wandb.log({
-                "MAE": mae,
-                "RMSE": rmse,
-                "R2": r2
-            })
-    
-            results.append({
-                "Trees": trees,
-                "Max Depth": depth,
-                "MAE": round(mae, 2),
-                "RMSE": round(rmse, 2),
-                "R²": round(r2, 3)
-            })
-    
-            run.finish()
+    PROJECT_NAME = "Chocolate-Sales"
 
-    result_df = pd.DataFrame(results)
+   # ======================================================
+# Linear Regression Experiments
+# ======================================================
 
-    st.subheader("Hyperparameter Experiment Results")
+for fit in [True, False]:
 
-    st.dataframe(result_df, use_container_width=True)
-    best = result_df.loc[result_df["R²"].idxmax()]
-    st.success(f"""
-### Best Model
-
-• Number of Trees: **{int(best['Trees'])}**
-
-• Maximum Depth: **{int(best['Max Depth'])}**
-
-• R² Score: **{best['R²']}**
-
-This model achieved the highest predictive performance among all experiments and was selected as the final model.
-""")
-    st.subheader("R² Score by Experiment")
-
-    fig, ax = plt.subplots(figsize=(8,5))
-    
-    sns.barplot(
-        data=result_df,
-        x="Trees",
-        y="R²",
-        hue="Max Depth",
-        palette="YlOrBr",
-        ax=ax
+    run = wandb.init(
+        project=PROJECT_NAME,
+        mode="disabled",
+        reinit=True,
+        config={
+            "Model": "Linear Regression",
+            "fit_intercept": fit
+        }
     )
-    
-    ax.set_title("Comparison of Hyperparameter Experiments")
-    
-    st.pyplot(fig)
-    st.info("""
-**Interpretation**
 
-Six Random Forest models were trained using different combinations of the number of trees and maximum tree depth. The experiment with the highest R² score was selected as the final model. Increasing the number of trees generally improved model stability, while the maximum depth controlled model complexity. Weights & Biases was used to record each experiment and compare model performance.
+    model = LinearRegression(
+        fit_intercept=fit
+    )
+
+    model.fit(X_train, y_train)
+
+    pred = model.predict(X_test)
+
+    mae = mean_absolute_error(y_test, pred)
+    rmse = np.sqrt(mean_squared_error(y_test, pred))
+    r2 = r2_score(y_test, pred)
+
+    wandb.log({
+        "Model": "Linear Regression",
+        "fit_intercept": fit,
+        "MAE": mae,
+        "RMSE": rmse,
+        "R2": r2
+    })
+
+    results.append({
+        "Model": "Linear Regression",
+        "Parameter": f"fit_intercept={fit}",
+        "MAE": round(mae,2),
+        "RMSE": round(rmse,2),
+        "R²": round(r2,3)
+    })
+
+    run.finish()
+
+
+# ======================================================
+# Decision Tree Experiments
+# ======================================================
+
+for depth in [5,10]:
+
+    run = wandb.init(
+        project=PROJECT_NAME,
+        mode="disabled",
+        reinit=True,
+        config={
+            "Model":"Decision Tree",
+            "max_depth":depth
+        }
+    )
+
+    model = DecisionTreeRegressor(
+        max_depth=depth,
+        random_state=42
+    )
+
+    model.fit(X_train,y_train)
+
+    pred=model.predict(X_test)
+
+    mae=mean_absolute_error(y_test,pred)
+    rmse=np.sqrt(mean_squared_error(y_test,pred))
+    r2=r2_score(y_test,pred)
+
+    wandb.log({
+        "Model":"Decision Tree",
+        "max_depth":depth,
+        "MAE":mae,
+        "RMSE":rmse,
+        "R2":r2
+    })
+
+    results.append({
+        "Model":"Decision Tree",
+        "Parameter":f"Depth={depth}",
+        "MAE":round(mae,2),
+        "RMSE":round(rmse,2),
+        "R²":round(r2,3)
+    })
+
+    run.finish()
+
+
+# ======================================================
+# Random Forest Experiments
+# ======================================================
+
+for trees in [50, 100, 150]:
+
+    for depth in [5, 10]:
+
+        run = wandb.init(
+            project=PROJECT_NAME,
+            mode="disabled",
+            reinit=True,
+            config={
+                "Model": "Random Forest",
+                "Trees": trees,
+                "Max Depth": depth
+            }
+        )
+
+        model = RandomForestRegressor(
+            n_estimators=trees,
+            max_depth=depth,
+            random_state=42
+        )
+
+        model.fit(X_train, y_train)
+
+        pred = model.predict(X_test)
+
+        mae = mean_absolute_error(y_test, pred)
+        rmse = np.sqrt(mean_squared_error(y_test, pred))
+        r2 = r2_score(y_test, pred)
+
+        wandb.log({
+            "Model": "Random Forest",
+            "Trees": trees,
+            "Max Depth": depth,
+            "MAE": mae,
+            "RMSE": rmse,
+            "R2": r2
+        })
+
+        results.append({
+            "Model": "Random Forest",
+            "Parameter": f"{trees} Trees | Depth={depth}",
+            "MAE": round(mae,2),
+            "RMSE": round(rmse,2),
+            "R²": round(r2,3)
+        })
+
+        run.finish()
+        # ==========================================
+# Results Table
+# ==========================================
+
+result_df = pd.DataFrame(results)
+
+st.subheader("📊 Model Comparison Results")
+
+st.dataframe(result_df, use_container_width=True)
+
+st.divider()
+
+# ==========================================
+# Best Model
+# ==========================================
+
+best = result_df.loc[result_df["R²"].idxmax()]
+
+st.success(f"""
+### 🏆 Best Performing Model
+
+**Model:** {best["Model"]}
+
+**Parameter:** {best["Parameter"]}
+
+**MAE:** {best["MAE"]}
+
+**RMSE:** {best["RMSE"]}
+
+**R² Score:** {best["R²"]}
+
+This model achieved the highest predictive accuracy among all experiments.
+""")
+
+st.divider()
+
+# ==========================================
+# Model Comparison Chart
+# ==========================================
+
+st.subheader("📈 R² Score Comparison")
+
+fig, ax = plt.subplots(figsize=(10,5))
+
+sns.barplot(
+    data=result_df,
+    x="Model",
+    y="R²",
+    hue="Parameter",
+    palette="YlOrBr",
+    ax=ax
+)
+
+ax.set_ylabel("R² Score")
+ax.set_xlabel("Machine Learning Model")
+ax.set_title("Comparison of Machine Learning Models")
+
+plt.xticks(rotation=20)
+
+st.pyplot(fig)
+
+plt.close(fig)
+
+st.divider()
+
+# ==========================================
+# Interpretation
+# ==========================================
+
+st.subheader("Business Interpretation")
+
+st.write("""
+Ten machine learning experiments were conducted to compare the predictive
+performance of three algorithms: Linear Regression, Decision Tree Regressor,
+and Random Forest Regressor.
+
+Linear Regression served as the baseline model and assumes a linear
+relationship between the predictors and shipment volume.
+
+Decision Tree improved model flexibility by capturing nonlinear patterns,
+although deeper trees may increase the risk of overfitting.
+
+Random Forest consistently achieved the highest predictive performance by
+combining multiple decision trees, reducing model variance and improving
+generalization.
+
+Among all experiments, the model shown above achieved the highest R² score
+and was therefore selected as the final prediction model for this project.
 """)
 
 
