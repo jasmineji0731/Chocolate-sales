@@ -288,7 +288,7 @@ margin-bottom:10px;
 
     st.dataframe(df.describe(), use_container_width=True)
 
-"""
+
 # ============================================
 # Page 2: Data Visualization
 # ============================================
@@ -516,7 +516,7 @@ This page explores important patterns in the chocolate sales dataset using
     predictors in the machine learning model.
     """)
 
-"""
+
 
 
  # ============================================
@@ -678,7 +678,7 @@ The closer the points are to the diagonal trend, the better the model performs.
 
 
 
-"""
+
     # ============================================
 # Page 4: Explainable AI (SHAP)
 # ============================================
@@ -803,7 +803,7 @@ how the machine learning model makes business predictions.
 
 """)
 
-"""
+
 
 
 
